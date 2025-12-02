@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Information</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        nav a:hover, nav a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Page 1 - Building Info */
+        .hero {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .building-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .building-image {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .gallery-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .gallery-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .gallery-dot.active {
+            background: white;
+        }
+
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+
+        .gallery-arrow:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .gallery-arrow.prev {
+            left: 10px;
+        }
+
+        .gallery-arrow.next {
+            right: 10px;
+        }
+
+        .building-info {
+            padding: 2rem;
+        }
+
+        .building-info h1 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item p {
+            color: #555;
+        }
+
+        /* Page 2 - Folders */
+        .folders-container {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .folders-container h1 {
+            color: #667eea;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .folders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .folder {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+
+        .folder:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .folder-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .folder h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .folder p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .footer-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-item p {
+            color: #ecf0f1;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .building-image {
+                height: 300px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page 1: Building Information -->
+    <div id="page1" class="page active">
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showPage(1); return false;" class="active">Building Info</a></li>
+                <li><a href="#" onclick="showPage(2); return false;">Documents</a></li>
+            </ul>
+        </nav>
+
+        <div class="hero">
+            <div class="building-card">
+                <div class="building-image">
+                    <button class="gallery-arrow prev" onclick="changeSlide(-1)">❮</button>
+                    <button class="gallery-arrow next" onclick="changeSlide(1)">❯</button>
+                    <div class="gallery-container" id="galleryContainer">
+                        <div class="gallery-slide">
+                            <img src="image1.jpg" alt="Building View 1" id="img1">
+                        </div>
+                        <div class="gallery-slide">
+                            <img src="image2.jpg" alt="Building View 2" id="img2">
+                        </div>
+                        <div class="gallery-slide">
+                            <img src="image3.jpg" alt="Building View 3" id="img3">
+                        </div>
+                    </div>
+                    <div class="gallery-nav">
+                        <span class="gallery-dot active" onclick="goToSlide(0)"></span>
+                        <span class="gallery-dot" onclick="goToSlide(1)"></span>
+                        <span class="gallery-dot" onclick="goToSlide(2)"></span>
+                    </div>
+                </div>
+                <div class="building-info">
+                    <h1>Our Building</h1>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Address</label>
+                            <p>123 Main Street, City Name, State 12345</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Building Type</label>
+                            <p>Residential Complex</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Year Built</label>
+                            <p>2020</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Total Units</label>
+                            <p>50 Units</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Contact</label>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p>info@building.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-item">
+                    <h3>Chairman</h3>
+                    <p>John Doe</p>
+                </div>
+                <div class="footer-item">
+                    <h3>Treasurer</h3>
+                    <p>Jane Smith</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Page 2: Folders -->
+    <div id="page2" class="page">
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showPage(1); return false;">Building Info</a></li>
+                <li><a href="#" onclick="showPage(2); return false;" class="active">Documents</a></li>
+            </ul>
+        </nav>
+
+        <div class="folders-container">
+            <h1>Document Folders</h1>
+            <div class="folders-grid">
+                <div class="folder">
+                    <div class="folder-icon">📁</div>
+                    <h3>Folder 1</h3>
+                    <p>Description for folder 1</p>
+                </div>
+                <div class="folder">
+                    <div class="folder-icon">📁</div>
+                    <h3>Folder 2</h3>
+                    <p>Description for folder 2</p>
+                </div>
+                <div class="folder">
+                    <div class="folder-icon">📁</div>
+                    <h3>Folder 3</h3>
+                    <p>Description for folder 3</p>
+                </div>
+                <div class="folder">
+                    <div class="folder-icon">📁</div>
+                    <h3>Folder 4</h3>
+                    <p>Description for folder 4</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-item">
+                    <h3>Chairman</h3>
+                    <p>John Doe</p>
+                </div>
+                <div class="footer-item">
+                    <h3>Treasurer</h3>
+                    <p>Jane Smith</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function showPage(pageNum) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById('page' + pageNum).classList.add('active');
+            
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            updateGallery();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateGallery();
+        }
+
+        function updateGallery() {
+            const container = document.getElementById('galleryContainer');
+            container.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            document.querySelectorAll('.gallery-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Auto-advance slides every 5 seconds
+        setInterval(() => {
+            changeSlide(1);
+        }, 5000);
+    </script>
+</body>
+</html>
